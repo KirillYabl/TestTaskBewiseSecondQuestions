@@ -1,0 +1,11 @@
+apscheduler==3.10.1
+fastapi==0.95.2
+fasteners==0.18
+psycopg2-binary==2.9.6
+pydub==0.25.1
+pytest-asyncio==0.21.0
+python-multipart==0.0.6
+SQLAlchemy==2.0.13
+sqlalchemy-file==0.4.0
+sqlalchemy_utils==0.41.1
+uvicorn[standard]==0.22.0

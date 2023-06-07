@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  testdb:
+    image: postgres:14.8-alpine
+    volumes:
+      - ./test_pgdata/:/var/lib/postgresql/data/
+    env_file:
+      - ./src/.dev.env
+    ports:
+      - 5432:5432
+    restart: unless-stopped
+
+  testapi:
+    build:
+      context: .
+    volumes:
+      - ./src/:/src/
+    ports:
+      - 8000:8000
+    depends_on:
+      - testdb
+    env_file:
+      - ./src/.dev.env
+      - ./test_records/:/tmp/storage/
+    command: >
+      python3 server.py
