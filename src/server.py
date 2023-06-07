@@ -32,7 +32,7 @@ def query_logger(query_id: uuid.UUID, message: str, function: typing.Callable):
     function(f"{query_id}| {message}")
 
 
-@app.post("/create_user")
+@app.post("/user")
 async def create_user(
         user: data_models.User,
         db_session: sqlalchemy.orm.Session = fastapi.Depends(db_models.get_session)
@@ -63,7 +63,7 @@ async def create_user(
     return data_models.UserModel.from_orm(new_user).dict()
 
 
-@app.post("/convert_audio")
+@app.post("/record", response_class=fastapi.responses.PlainTextResponse)
 async def convert_audio(
         request: fastapi.Request,
         audio: fastapi.UploadFile,
@@ -94,7 +94,7 @@ async def convert_audio(
         db_session.rollback()
     query_logger(query_id, "audio saved", fastapi.logger.logger.debug)
     base_url = str(request.base_url)
-    get_record_path = str(starlette.datastructures.URLPath("get_record"))
+    get_record_path = str(starlette.datastructures.URLPath("record"))
     get_record_full_path = urllib.parse.urljoin(base_url, get_record_path)
     encoded_params = urllib.parse.urlencode({
         "id": user_audio.audio_id,
@@ -124,6 +124,16 @@ async def get_record(
         )
 
     if audio_raw.convert_status != db_models.UserAudio.ConvertStatus.finished:
+        if audio_raw.convert_status == db_models.UserAudio.ConvertStatus.not_valid:
+            raise fastapi.HTTPException(
+                status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+                detail=f"Record not an .wav format record",
+            )
+        if audio_raw.convert_status == db_models.UserAudio.ConvertStatus.error:
+            raise fastapi.HTTPException(
+                status_code=fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"There was an error in process of record convertation",
+            )
         query_logger(query_id, "audio not converted yet", fastapi.logger.logger.debug)
         raise fastapi.HTTPException(
             status_code=fastapi.status.HTTP_423_LOCKED,
