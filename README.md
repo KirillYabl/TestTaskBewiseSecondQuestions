@@ -57,6 +57,37 @@ docker compose up
 
 После этого сервис запусится по адресу [127.0.0.1:8000](127.0.0.1:8000)
 
+Запросы можно отправлять как с [со страницы документации](http://127.0.0.1:8000/docs#/), генерируемой FastApi
+
+Так и непосредственно напрямую, например через curl:
+
+1. Создание юзера
+```shell
+curl -X 'POST' \
+  'http://127.0.0.1:8000/user' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "user_name": "string"
+}'
+```
+
+2. Загрузка файла на конвертацию
+```shell
+curl -X 'POST' \
+  'http://127.0.0.1:8000/record?user_id=1&token=ade15adb-d751-44b1-ac48-619a8d68ce5c' \
+  -H 'accept: text/plain' \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'audio=@path/to/data/valid_wav.wav;type=audio/wav'
+```
+
+3. Скачивание файла
+```shell
+curl -X 'GET' \
+  'http://127.0.0.1:8000/record?id=ade15adb-d751-44b1-ac48-619a8d68ce5c&user_id=1' \
+  -H 'accept: application/json'
+```
+
 
 ## Переменные окружения
 
