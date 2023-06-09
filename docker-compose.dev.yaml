@@ -15,12 +15,12 @@ services:
       context: .
     volumes:
       - ./src/:/src/
+      - ./test_records/:/tmp/storage/
     ports:
       - 8000:8000
     depends_on:
       - testdb
     env_file:
       - ./src/.dev.env
-      - ./test_records/:/tmp/storage/
     command: >
       python3 server.py
